@@ -29,7 +29,7 @@ const request = {
 fs.writeFileSync("req.json", JSON.stringify(request.recognizeRequest));
 
 for (var i = 0; i < 1; i++) {
-    axios.post("http://localhost:8080/recognize", request.recognizeRequest).then(
+    axios.post("http://localhost:8080/recognize_rest", request.recognizeRequest).then(
         (result) => result.data).then((result) => {
             console.log("Got response");
             result = result.recognize_response;

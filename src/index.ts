@@ -1,6 +1,6 @@
 import fastify from "fastify";
 import recognizer from "./recognizer";
-import recognizer_rest from "./recognizr_rest";
+import recognizerRest from "./recognizer_rest";
 import { RecognizeRequest } from "./types/recognize_request";
 import { RecognizeResponse } from "./types/recognize_response";
 
