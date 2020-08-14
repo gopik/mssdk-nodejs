@@ -8,17 +8,16 @@ import pino from "pino";
 const log = pino({ level: "info" });
 
 const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse> => {
-    if (!process.env.MSSDK_SPEECH_SUBSCRIPTON_KEY) {
+    if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
         console.log("env MSSDK_SPEECH_SUBSCRIPTON_KEY is undefined");
         return Promise.reject("env MSSDK_SPEECH_SUBSCRIPTON_KEY is undefined");
     }
 
-    const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.MSSDK_SPEECH_SUBSCRIPTON_KEY, "centralindia");
+    const speechConfig = sdk.SpeechConfig.fromSubscription(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY, "centralindia");
     const pushStream = sdk.AudioInputStream.createPushStream(AudioStreamFormat.getWaveFormatPCM(8000, 16, 1));
 
     const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
     speechConfig.speechRecognitionLanguage = request.config.language_code;
-    speechConfig.enableAudioLogging();
     speechConfig.outputFormat = sdk.OutputFormat.Detailed;
 
     speechConfig.enableAudioLogging();

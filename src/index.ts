@@ -2,9 +2,13 @@ import fastify from "fastify";
 import recognizer from "./recognizer";
 import { RecognizeRequest } from "./types/recognize_request";
 import { RecognizeResponse } from "./types/recognize_response";
+
+
+console.log("env", process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
 const server = fastify({
     logger: true,
 });
+
 
 server.post<{
     Body: RecognizeRequest,
