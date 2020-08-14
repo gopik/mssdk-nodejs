@@ -1,5 +1,6 @@
 import fastify from "fastify";
 import recognizer from "./recognizer";
+import recognizer_rest from "./recognizr_rest";
 import { RecognizeRequest } from "./types/recognize_request";
 import { RecognizeResponse } from "./types/recognize_response";
 
@@ -23,6 +24,20 @@ server.post<{
             recognize_response: response
         });
     }
+);
+
+server.post<{
+    Body: RecognizeRequest,
+    Reply: {
+        recognize_response: RecognizeResponse
+    }
+}>("/recognize_rest",
+async (request, reply) => {
+    const response = await recognizerRest(request.body);
+    reply.send({
+        recognize_response: response
+    });
+}
 );
 
 server.listen(8080, (err, address) => {
