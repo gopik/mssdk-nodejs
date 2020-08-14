@@ -1,8 +1,7 @@
-import axios from 'axios';
+import axios from "axios";
 
 import { RecognizeRequest } from "./types/recognize_request";
 import { RecognizeResponse } from "./types/recognize_response";
-import pino from "pino";
 
 const recognizerRest = async (request: RecognizeRequest) : Promise<RecognizeResponse> => {
     if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
@@ -41,6 +40,6 @@ const recognizerRest = async (request: RecognizeRequest) : Promise<RecognizeResp
     };
     return Promise.resolve(resp);
 
-}
+};
 
 export default recognizerRest;

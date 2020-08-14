@@ -53,4 +53,4 @@ for (var i = 0; i < 1; i++) {
             }
         }
         ).catch(error => console.log(error.response));
-};
+}
