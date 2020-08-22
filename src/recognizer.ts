@@ -20,6 +20,9 @@ const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse>
     speechConfig.speechRecognitionLanguage = request.config.language_code;
     speechConfig.outputFormat = sdk.OutputFormat.Detailed;
 
+
+    console.log(speechConfig);
+
     speechConfig.enableAudioLogging();
     const base64Audio = request.audio.AudioSource.Content ;
     const sdkRecognizer = new sdk.SpeechRecognizer(speechConfig, audioConfig);
@@ -33,7 +36,7 @@ const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse>
     pushStream.close();
     const result = await sdkResult;
     sdkRecognizer.close();
-    console.log("data = ", result.text);
+    console.log("data = ", result);
 
     const resp: RecognizeResponse = {
         results: [{
