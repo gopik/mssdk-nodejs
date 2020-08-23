@@ -29,7 +29,7 @@ interface SpeechRecognitionResult {
     alternatives: SpeechRecognitionAlternative[];
 }
 
-export interface RecognizeResponse {
+export type RecognizeResponse = {
     results: SpeechRecognitionResult[];
 }
   
