@@ -1,7 +1,6 @@
 import axios from "axios";
-
-import { RecognizeRequest } from "./types/recognize_request";
-import { RecognizeResponse } from "./types/recognize_response";
+import { RecognizeRequest } from "./recognizer";
+import { RecognizeResponse } from "./recognizer";
 
 const recognizerRest = async (request: RecognizeRequest) : Promise<RecognizeResponse> => {
     if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
@@ -33,6 +32,7 @@ const recognizerRest = async (request: RecognizeRequest) : Promise<RecognizeResp
                 alternatives: [
                     {
                         transcript: result.data,
+                        confidence: 0.0
                     }
                 ]
             }

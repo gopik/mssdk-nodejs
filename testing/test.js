@@ -21,7 +21,7 @@ const request = {
         config: {
             encoding: "LINEAR16",
             sample_rate_hertz: 8000,
-            language_code: "hi-IN"
+            language_code: "en-IN"
         }
     }
 };
@@ -29,7 +29,7 @@ const request = {
 fs.writeFileSync("req.json", JSON.stringify(request.recognizeRequest));
 
 for (var i = 0; i < 1; i++) {
-    axios.post("http://localhost:8080/recognize_rest", request.recognizeRequest).then(
+    axios.post("http://localhost:8080/recognize", request.recognizeRequest).then(
         (result) => result.data).then((result) => {
             console.log("Got response");
             result = result.recognize_response;
@@ -49,7 +49,7 @@ for (var i = 0; i < 1; i++) {
                 console.log("got 0 alternatives");
             }
             if (result.results[0].alternatives[0].transcript != "") {
-                console.log(`got transcript ""${result.results[0].alternatives[0].transcript}""`);
+                console.log(`got transcript ${result.results[0].alternatives[0].transcript}`);
             }
         }
         ).catch(error => console.log(error.response));

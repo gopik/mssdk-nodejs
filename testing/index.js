@@ -49,7 +49,7 @@ for (var i = 0; i < 1; i++) {
                 console.log("got 0 alternatives");
             }
             if (result.results[0].alternatives[0].transcript != "") {
-                console.log(`got transcript ""${result.results[0].alternatives[0].transcript}""`);
+                console.log(`got transcript ${result.results[0].alternatives[0].transcript}`);
             }
         }
         ).catch(error => console.log(error.response));

@@ -1,8 +1,8 @@
 import fastify from "fastify";
 import recognizer from "./recognizer";
 import recognizerRest from "./recognizer_rest";
-import { RecognizeRequest } from "./types/recognize_request";
-import { RecognizeResponse } from "./types/recognize_response";
+import { RecognizeRequest } from "./recognizer";
+import { RecognizeResponse } from "./recognizer";
 
 
 console.log("env", process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
