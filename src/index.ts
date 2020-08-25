@@ -4,21 +4,33 @@ import recognizerRest from "./recognizer_rest";
 import { RecognizeRequest } from "./recognizer";
 import { RecognizeResponse } from "./recognizer";
 
-
-console.log("env", process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
 const server = fastify({
     logger: true,
 });
 
+interface Request {
+    Q: unknown;
+    R: unknown;
+}
+function test<T extends Request>(arg1: T["Q"], f: (v: T["Q"]) => T["R"]): T["R"] {
+    return f(arg1);
+}
+
+test<{
+    Q: string;
+    R: string;
+}>("10", (x: string) => x);
 
 server.post<{
-    Body: RecognizeRequest,
+    Body: {
+        recognize_request: RecognizeRequest
+    },
     Reply: {
         recognize_response: RecognizeResponse
     }
 }>("/recognize",
     async (request, reply) => {
-        const response = await recognizer(request.body);
+        const response = await recognizer(request.body.recognize_request);
 
         reply.send({
             recognize_response: response

@@ -12,7 +12,7 @@ const fileName = process.argv[2];
 const contents = fs.readFileSync(fileName, "base64");
 
 const request = {
-    recognizeRequest: {
+    recognize_request: {
         audio: {
             AudioSource: {
                 Content: contents,
@@ -26,33 +26,36 @@ const request = {
     }
 };
 
-fs.writeFileSync("req.json", JSON.stringify(request.recognizeRequest));
+fs.writeFileSync("req.json", JSON.stringify(request));
 
-for (var i = 0; i < 1; i++) {
-    axios.post("http://localhost:8080/recognize", request.recognizeRequest).then(
-        (result) => result.data).then((result) => {
-            console.log("Got response");
-            result = result.recognize_response;
-            if (!result.results) {
-                console.log("expected results field");
-                return;
-            }
-            if (result.results.length == 0) {
-                console.log("got 0 results");
-                return;
-            }
-            if (!result.results[0].alternatives) {
-                console.log("expected alternatives in result");
-                return;
-            }
-            if (result.results[0].alternatives[0].length == 0) {
-                console.log("got 0 alternatives");
-            }
-            if (result.results[0].alternatives[0].transcript != "") {
-                console.log(`got transcript ${result.results[0].alternatives[0].transcript}`);
+axios.post("http://localhost:8080/recognize", request).then(
+    (result) => result.data).then((result) => {
+        console.log("Got response");
+        result = result.recognize_response;
+        if (!result.results) {
+            console.log("expected results field");
+            return;
+        }
+        if (result.results.length == 0) {
+            console.log("got 0 results");
+            return;
+        }
+        if (!result.results[0].alternatives) {
+            console.log("expected alternatives in result");
+            return;
+        }
+        if (result.results[0].alternatives[0].length == 0) {
+            console.log("got 0 alternatives");
+        }
+        if (result.results[0].alternatives[0].transcript != "") {
+            console.log(`got transcript ${result.results[0].alternatives[0].transcript}`);
+
+            const alternatives = result.results[0].alternatives;
+            for (const i in alternatives) {
+                console.log(alternatives[i]);
             }
         }
-        ).catch(error => console.log(error.response));
-}
+    }
+    ).catch(error => console.log(error.response));
 
-export {};
+export { };

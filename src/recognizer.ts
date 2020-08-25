@@ -33,18 +33,18 @@ export type RecognizeResponse = {
     results: SpeechRecognitionResult[];
 }
   
-
 const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse> => {
     if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
         log.error("env MSSDK_SPEECH_SUBSCRIPTON_KEY is undefined");
         return Promise.reject("env MSSDK_SPEECH_SUBSCRIPTION_KEY is undefined");
     }
 
-    const sdkRecognizer = new MSRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
-    const continuousRecognitionResult = await sdkRecognizer.recognizeOnce(
+    log.info(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
+    const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
+    const sdkResult = await sdkRecognizer.recognizeOnce(
         request.audio.AudioSource.Content,
          request.config.language_code);
-    const resp = toRecognizeResult(continuousRecognitionResult);
+    const resp = toRecognizeResult(sdkResult);
     return resp;
 
 };
@@ -59,7 +59,7 @@ interface SdkResult {
     NBest: Array<NBest>;
 }
 
-class MSRecognizer {
+class AzureRecognizer {
     readonly subscriptionKey: string;
     constructor(subscriptionKey: string) {
         this.subscriptionKey = subscriptionKey;
@@ -68,26 +68,30 @@ class MSRecognizer {
         const speechConfig = sdk.SpeechConfig.fromSubscription(this.subscriptionKey, "centralindia");
         speechConfig.speechRecognitionLanguage = languageCode;
         speechConfig.outputFormat = sdk.OutputFormat.Detailed;
+        speechConfig.endpointId = "61d93cc3-3344-43b0-b179-dbd751d622ab";
         return speechConfig;
 
     }
-    recognizeOnce(audio:string, languageCode: string): Promise<sdk.SpeechRecognitionResult> {
+    async recognizeOnce(audio:string, languageCode: string): Promise<sdk.SpeechRecognitionResult> {
         const pushStream = sdk.AudioInputStream.createPushStream(AudioStreamFormat.getWaveFormatPCM(8000, 16, 1));
         const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
         const sdkRecognizer = new sdk.SpeechRecognizer(this.getSpeechConfig(languageCode), audioConfig);
 
         pushStream.write(Buffer.from(audio, "base64").slice());
-        return new Promise<sdk.SpeechRecognitionResult>((resolve, reject) => {
+
+        try {
+        const sdkResultAsync = new Promise<sdk.SpeechRecognitionResult>((resolve, reject) => {
             log.info("Invoke recognize sdk");
             sdkRecognizer.recognizeOnceAsync(resolve, reject);
             pushStream.close();
-        }).then(x => {
-            sdkRecognizer.close();
-            return x;
-        }).catch(x => {
-            sdkRecognizer.close();
-            return x;
+
         });
+        const sdkResult = await sdkResultAsync;
+        return sdkResult;
+    } finally {
+        sdkRecognizer.close();
+    }
+
     }
 }
 
