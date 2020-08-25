@@ -68,7 +68,6 @@ class AzureRecognizer {
         const speechConfig = sdk.SpeechConfig.fromSubscription(this.subscriptionKey, "centralindia");
         speechConfig.speechRecognitionLanguage = languageCode;
         speechConfig.outputFormat = sdk.OutputFormat.Detailed;
-        speechConfig.endpointId = "61d93cc3-3344-43b0-b179-dbd751d622ab";
         return speechConfig;
 
     }
