@@ -7,8 +7,8 @@ const log = pino({ level: "info" });
 
 export type RecognizeRequest = {
     audio: {
-      AudioSource: {
-        Content: string;
+      audio_source: {
+        content: string;
       };
     };
     config: {
@@ -17,6 +17,11 @@ export type RecognizeRequest = {
       encoding: string;
       [k: string]: unknown;
     };
+    options?: {
+        azure_options?: {
+            endpoint_id?: string;
+        }
+    }
   }
 
 
@@ -36,13 +41,14 @@ export type RecognizeResponse = {
 const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse> => {
     if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
         log.error("env MSSDK_SPEECH_SUBSCRIPTON_KEY is undefined");
-        return Promise.reject("env MSSDK_SPEECH_SUBSCRIPTION_KEY is undefined");
+        throw "env MSSDK_SPEECH_SUBSCRIPTION_KEY is undefined";
     }
 
     log.info(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
-    const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
+    const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY, request.options?.azure_options?.endpoint_id)
+        
     const sdkResult = await sdkRecognizer.recognizeOnce(
-        request.audio.AudioSource.Content,
+        request.audio.audio_source.content,
          request.config.language_code);
     const resp = toRecognizeResult(sdkResult);
     return resp;
@@ -59,15 +65,22 @@ interface SdkResult {
     NBest: Array<NBest>;
 }
 
+
 class AzureRecognizer {
     readonly subscriptionKey: string;
-    constructor(subscriptionKey: string) {
+    readonly endpointId: string | undefined;
+    constructor(subscriptionKey: string, endpointId: string | undefined) {
         this.subscriptionKey = subscriptionKey;
+        this.endpointId = endpointId;
     }
     private getSpeechConfig(languageCode: string): sdk.SpeechConfig {
         const speechConfig = sdk.SpeechConfig.fromSubscription(this.subscriptionKey, "centralindia");
         speechConfig.speechRecognitionLanguage = languageCode;
         speechConfig.outputFormat = sdk.OutputFormat.Detailed;
+        if (this.endpointId) {
+            log.info(`using endpoint id ${this.endpointId}`);
+            speechConfig.endpointId = this.endpointId;
+        }
         return speechConfig;
 
     }
