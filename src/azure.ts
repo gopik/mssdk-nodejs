@@ -2,43 +2,12 @@ import * as sdk from "microsoft-cognitiveservices-speech-sdk";
 import { AudioStreamFormat } from "microsoft-cognitiveservices-speech-sdk";
 
 import pino from "pino";
+import { RecognizeRequest } from "./recgonize_request";
+import { RecognizeResponse } from "./recognize_response";
 
 const log = pino({ level: "info" });
 
-export type RecognizeRequest = {
-    audio: {
-      audio_source: {
-        content: string;
-      };
-    };
-    config: {
-      sample_rate_hertz: number;
-      language_code: string;
-      encoding: string;
-      [k: string]: unknown;
-    };
-    options?: {
-        azure_options?: {
-            endpoint_id?: string;
-        }
-    }
-  }
-
-
-interface SpeechRecognitionAlternative {
-    transcript: string;
-    confidence: number;
-}
-
-interface SpeechRecognitionResult {
-    alternatives: SpeechRecognitionAlternative[];
-}
-
-export type RecognizeResponse = {
-    results: SpeechRecognitionResult[];
-}
-  
-const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse> => {
+export const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse> => {
     if (!process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY) {
         log.error("env MSSDK_SPEECH_SUBSCRIPTON_KEY is undefined");
         throw "env MSSDK_SPEECH_SUBSCRIPTION_KEY is undefined";
@@ -46,11 +15,11 @@ const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse>
 
     log.info(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
     const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY,
-         request.options?.azure_options?.endpoint_id);
+         request.recognize_request.options?.azure_options?.endpoint_id);
         
     const sdkResult = await sdkRecognizer.recognizeOnce(
-        request.audio.audio_source.content,
-         request.config.language_code);
+        request.recognize_request.audio.audio_source.content,
+         request.recognize_request.config.language_code);
     const resp = toRecognizeResult(sdkResult);
     return resp;
 
@@ -109,16 +78,16 @@ const toRecognizeResult = (sdkResult: sdk.SpeechRecognitionResult): RecognizeRes
     const nbest : NBest[] = Array.from(JSON.parse(sdkResult.json).NBest);
     log.info(nbest);
     return {
-        results: [{
-        alternatives: nbest.map<SpeechRecognitionAlternative>((nb: NBest) => {
-            return {
-                transcript: nb.Lexical,
-                confidence: nb.Confidence,
-            };
-        }),
-    }
-    ],
+        recognize_response: {
+            results: [{
+                alternatives: nbest.map<SpeechRecognitionAlternative>((nb: NBest) => {
+                    return {
+                        transcript: nb.Lexical,
+                        confidence: nb.Confidence,
+                    };
+                }),
+            }
+            ],
+        }
+    };
 };
-};
-
-export default recognizer;

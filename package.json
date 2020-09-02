@@ -25,10 +25,12 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
+    "@google-cloud/speech": "^4.1.2",
     "@types/lodash": "^4.14.159",
     "@types/pino": "^6.3.0",
     "axios": "^0.19.2",
     "fastify": "^3.2.0",
+    "google-gax": "^2.7.0",
     "lodash": "^4.17.19",
     "microsoft-cognitiveservices-speech-sdk": "^1.13.1"
   }

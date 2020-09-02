@@ -1,43 +1,40 @@
 import fastify from "fastify";
-import recognizer from "./recognizer";
-import recognizerRest from "./recognizer_rest";
-import { RecognizeRequest } from "./recognizer";
-import { RecognizeResponse } from "./recognizer";
+import { recognizer as azureRecognizer } from "./azure";
+import { recognizerRest as azureRestRecognizer } from "./azure_rest";
+import { RecognizeRequest } from "./recgonize_request";
+import { RecognizeResponse } from "./recognize_response";
+import { RouteGenericInterface } from "fastify/types/route";
+import { recognizer as googleRecognizer } from "./google";
 
 const server = fastify({
     logger: true,
 });
 
-server.post<{
-    Body: {
-        recognize_request: RecognizeRequest
-    },
-    Reply: {
-        recognize_response: RecognizeResponse
-    }
-}>("/recognize",
-    async (request, reply) => {
-        const response = await recognizer(request.body.recognize_request);
 
-        reply.send({
-            recognize_response: response
-        });
-    }
-);
-
-server.post<{
-    Body: RecognizeRequest,
-    Reply: {
-        recognize_response: RecognizeResponse
-    }
-}>("/recognize_rest",
-async (request, reply) => {
-    const response = await recognizerRest(request.body);
-    reply.send({
-        recognize_response: response
-    });
+interface RecognizeAPI extends RouteGenericInterface {
+    Body: RecognizeRequest;
+    Reply: RecognizeResponse;
 }
+
+server.post<RecognizeAPI>("/azure/recognize",
+    async (request, reply) => {
+        const response = await azureRecognizer(request.body);
+        reply.send({ response });
+    }
 );
+
+server.post<RecognizeAPI>("/azure/recognize_rest",
+    async (request, reply) => {
+        const response = await azureRestRecognizer(request.body);
+        reply.send(response);
+    }
+);
+
+server.post<RecognizeAPI>("/google/recognize",
+    async (request, reply) => {
+        const response = await googleRecognizer(request.body);
+        reply.send(response);
+    });
 
 server.listen(8080, (err, address) => {
     if(err) {
