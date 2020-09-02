@@ -45,7 +45,8 @@ const recognizer = async (request: RecognizeRequest): Promise<RecognizeResponse>
     }
 
     log.info(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY);
-    const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY, request.options?.azure_options?.endpoint_id)
+    const sdkRecognizer = new AzureRecognizer(process.env.MSSDK_SPEECH_SUBSCRIPTION_KEY,
+         request.options?.azure_options?.endpoint_id);
         
     const sdkResult = await sdkRecognizer.recognizeOnce(
         request.audio.audio_source.content,
@@ -60,12 +61,6 @@ interface NBest {
     Lexical: string;
 }
 
-interface SdkResult {
-    DisplayText: string;
-    NBest: Array<NBest>;
-}
-
-
 class AzureRecognizer {
     readonly subscriptionKey: string;
     readonly endpointId: string | undefined;
@@ -73,6 +68,7 @@ class AzureRecognizer {
         this.subscriptionKey = subscriptionKey;
         this.endpointId = endpointId;
     }
+
     private getSpeechConfig(languageCode: string): sdk.SpeechConfig {
         const speechConfig = sdk.SpeechConfig.fromSubscription(this.subscriptionKey, "centralindia");
         speechConfig.speechRecognitionLanguage = languageCode;
@@ -84,6 +80,7 @@ class AzureRecognizer {
         return speechConfig;
 
     }
+
     async recognizeOnce(audio:string, languageCode: string): Promise<sdk.SpeechRecognitionResult> {
         const pushStream = sdk.AudioInputStream.createPushStream(AudioStreamFormat.getWaveFormatPCM(8000, 16, 1));
         const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
@@ -92,17 +89,17 @@ class AzureRecognizer {
         pushStream.write(Buffer.from(audio, "base64").slice());
 
         try {
-        const sdkResultAsync = new Promise<sdk.SpeechRecognitionResult>((resolve, reject) => {
-            log.info("Invoke recognize sdk");
-            sdkRecognizer.recognizeOnceAsync(resolve, reject);
-            pushStream.close();
+            const sdkResultAsync = new Promise<sdk.SpeechRecognitionResult>((resolve, reject) => {
+                log.info("Invoke recognize sdk");
+                sdkRecognizer.recognizeOnceAsync(resolve, reject);
+                pushStream.close();
 
-        });
-        const sdkResult = await sdkResultAsync;
-        return sdkResult;
-    } finally {
-        sdkRecognizer.close();
-    }
+            });
+            const sdkResult = await sdkResultAsync;
+            return sdkResult;
+        } finally {
+            sdkRecognizer.close();
+        }
 
     }
 }

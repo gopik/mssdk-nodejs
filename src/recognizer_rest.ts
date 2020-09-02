@@ -8,7 +8,7 @@ const recognizerRest = async (request: RecognizeRequest) : Promise<RecognizeResp
         return Promise.reject("env MSSDK_SPEECH_SUBSCRIPTION_KEY is undefined");
     }
 
-    const base64Audio = request.audio.AudioSource.Content;
+    const base64Audio = request.audio.audio_source.content;
     const audioBytes = Buffer.from(base64Audio, "base64");
 
     const result = await axios({

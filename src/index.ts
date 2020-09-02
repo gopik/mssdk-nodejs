@@ -8,19 +8,6 @@ const server = fastify({
     logger: true,
 });
 
-interface Request {
-    Q: unknown;
-    R: unknown;
-}
-function test<T extends Request>(arg1: T["Q"], f: (v: T["Q"]) => T["R"]): T["R"] {
-    return f(arg1);
-}
-
-test<{
-    Q: string;
-    R: string;
-}>("10", (x: string) => x);
-
 server.post<{
     Body: {
         recognize_request: RecognizeRequest
