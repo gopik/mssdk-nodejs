@@ -14,21 +14,21 @@ const contents = fs.readFileSync(fileName, "base64");
 const request = {
     recognize_request: {
         audio: {
-            AudioSource: {
-                Content: contents,
+            audio_source: {
+                content: contents,
             },
         },
         config: {
             encoding: "LINEAR16",
             sample_rate_hertz: 8000,
-            language_code: "en-IN"
+            language_code: "hi-IN"
         }
     }
 };
 
 fs.writeFileSync("req.json", JSON.stringify(request));
 
-axios.post("http://localhost:8080/recognize", request).then(
+axios.post("http://localhost:8080/azure/recognize", request).then(
     (result) => result.data).then((result) => {
         console.log("Got response");
         result = result.recognize_response;

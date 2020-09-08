@@ -19,7 +19,7 @@ interface RecognizeAPI extends RouteGenericInterface {
 server.post<RecognizeAPI>("/azure/recognize",
     async (request, reply) => {
         const response = await azureRecognizer(request.body);
-        reply.send({ response });
+        reply.send(response);
     }
 );
 

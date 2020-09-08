@@ -54,6 +54,9 @@ class AzureRecognizer {
         const pushStream = sdk.AudioInputStream.createPushStream(AudioStreamFormat.getWaveFormatPCM(8000, 16, 1));
         const audioConfig = sdk.AudioConfig.fromStreamInput(pushStream);
         const sdkRecognizer = new sdk.SpeechRecognizer(this.getSpeechConfig(languageCode), audioConfig);
+        log.info({
+            audio_size: audio.length
+        });
 
         pushStream.write(Buffer.from(audio, "base64").slice());
 
@@ -62,7 +65,6 @@ class AzureRecognizer {
                 log.info("Invoke recognize sdk");
                 sdkRecognizer.recognizeOnceAsync(resolve, reject);
                 pushStream.close();
-
             });
             const sdkResult = await sdkResultAsync;
             return sdkResult;
@@ -74,9 +76,20 @@ class AzureRecognizer {
 }
 
 const toRecognizeResult = (sdkResult: sdk.SpeechRecognitionResult): RecognizeResponse => {
-    log.info(sdkResult);
-    const nbest : NBest[] = Array.from(JSON.parse(sdkResult.json).NBest);
-    log.info(nbest);
+    log.info({ sdkResult });
+
+    const sdkJson = JSON.parse(sdkResult.json);
+
+    if (!sdkJson.NBest) {
+        return {
+            recognize_response: {
+                results: []
+            }
+        };
+    }
+
+    const nbest : NBest[] = Array.from(sdkJson.NBest);
+    log.info({ nbest });
     return {
         recognize_response: {
             results: [{
